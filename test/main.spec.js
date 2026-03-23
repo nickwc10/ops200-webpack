@@ -1,11 +1,11 @@
-/* global define, it, describe, beforeEach, document */
+/* global define, it, describe, beforeEach, afterEach, document */
 const express = require('express');
 const path = require('path');
-const Nightmare = require('nightmare');
+const { chromium } = require('playwright');
 const expect = require('chai').expect;
 const axios = require('axios');
 
-let nightmare;
+let browser, page;
 
 const app = express();
 app.use(express.static(path.join(__dirname, '/../public')));
@@ -17,24 +17,26 @@ const url = 'http://localhost:8888';
 
 
 describe('webpack webpage', function () {
-  this.timeout(6500);
-  beforeEach(() => {
-    nightmare = new Nightmare();
+  this.timeout(15000);
+  beforeEach(async () => {
+    browser = await chromium.launch();
+    page = await browser.newPage();
+  });
+
+  afterEach(async () => {
+    await browser.close();
   });
 
   it('should load with status 200', () => axios.get(url)
     .then(response => expect(response.status === 200)));
 
-  it('should render a div with react', () =>
-    nightmare
-      .goto(url)
-      .wait('#root div')
-      .evaluate(() => {
-        const selector = '[data-reactroot], [data-reactid]';
-        const runningReact = !!document.querySelector(selector);
-        return !!runningReact;
-      })
-      .end()
-      .then(text => expect(text).to.equal(true))
-  );
+  it('should render a div with react', async () => {
+    await page.goto(url);
+    await page.waitForSelector('#root div');
+    const runningReact = await page.evaluate(() => {
+      const selector = '[data-reactroot], [data-reactid]';
+      return !!document.querySelector(selector);
+    });
+    expect(runningReact).to.equal(true);
+  });
 });

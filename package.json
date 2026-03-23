@@ -4,9 +4,9 @@
   "description": "webpack workshop",
   "main": "server.js",
   "scripts": {
-    "build": "webpack --mode development",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode development",
     "test": "npm run build && mocha test/.setup.js test/*.spec.js --exit",
-    "start": "webpack && node server.js"
+    "start": "npm run build && node server.js"
   },
   "repository": {
     "type": "git",
@@ -34,7 +34,7 @@
     "lodash": "^4.15.0",
     "lodash-webpack-plugin": "^0.10.2",
     "morgan": "^1.8.2",
-    "nightmare": "^3.0.1",
+    "playwright": "^1.44.0",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "serve-favicon": "^2.0.1",
